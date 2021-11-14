@@ -1,8 +1,8 @@
 package com.mikesajak.chess
 
-import org.scalatest._
-import org.scalatest.flatspec._
-import matchers._
+import org.scalatest.*
+import org.scalatest.flatspec.*
+import org.scalatest.matchers.*
 
-class UnitTestSpec extends AnyFlatSpec with should.Matchers with OptionValues 
+trait UnitTestSpec extends AnyFlatSpec with should.Matchers with OptionValues
     with Inside with Inspectors

@@ -1,42 +1,31 @@
 package com.mikesajak.chess
 
-enum PieceType(val symbol: String):
-  case Pawn   extends PieceType("P")
-  case Knight extends PieceType("H")
-  case Bishop extends PieceType("B")
-  case Rook   extends PieceType("R")
-  case Queen  extends PieceType("Q")
-  case King   extends PieceType("K")
-
 object Piece {
   def isMoveInsideBoard(toPos: Position): Boolean =
     toPos.row >=0 && toPos.row < 8 && toPos.col >= 0 && toPos.col < 8
+
+  def allPieceTypes: Seq[Piece] = Seq(Pawn, Rook, Knight, Bishop, Queen, Knight)
 }
 
 trait Piece {
   def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean
   def validMoves(fromPos: Position, firstMove: Boolean): Set[Move]
-  def pieceType: PieceType
+  def symbol: String
 
-  override def toString: String = pieceType.symbol
-
-  override def equals(obj: Any): Boolean = obj match {
-    case piece: Piece => piece.pieceType == pieceType
-    case _ => false
-  }
-
-  override def hashCode(): Int = pieceType.hashCode
+  override def toString: String = symbol
 }
 
 case class Move(piece: Piece, fromPos: Position, toPos: Position, captureAllowed: Boolean)
 
-class Pawn extends Piece {
+case object Pawn extends Piece {
   import Piece.*
 
-  val pieceType: PieceType = PieceType.Pawn
+  val symbol = "P"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = {
-    if (firstMove && fromPos.row != 1) false
+    if (fromPos.col < 0 || fromPos.col > 7
+        || fromPos.row < 0 || fromPos.row > 7) false
+    else if (firstMove && fromPos.row != 1) false
     else {
       isMoveInsideBoard(toPos)
           && (isRegularMove(fromPos, toPos, firstMove)
@@ -74,36 +63,36 @@ class Pawn extends Piece {
 
 }
 
-class Knight extends Piece { // horse
-  val pieceType: PieceType = PieceType.Knight
+case object Knight extends Piece { // horse
+  val symbol = "H"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = false
   override def validMoves(fromPos: Position, firstMove: Boolean): Set[Move] = Set()
 }
 
-class Bishop extends Piece { // Laufer
-  val pieceType: PieceType = PieceType.Bishop
+case object Bishop extends Piece { // Laufer
+  val symbol = "B"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = false
   override def validMoves(fromPos: Position, firstMove: Boolean): Set[Move] = Set()
 }
 
-class Rook extends Piece { // tower
-  val pieceType: PieceType = PieceType.Rook
+object Rook extends Piece { // tower
+  val symbol = "R"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = false
   override def validMoves(fromPos: Position, firstMove: Boolean): Set[Move] = Set()
 }
 
-class Queen extends Piece {
-  val pieceType: PieceType = PieceType.Queen
+case object Queen extends Piece {
+  val symbol = "Q"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = false
   override def validMoves(fromPos: Position, firstMove: Boolean): Set[Move] = Set()
 }
 
-class King extends Piece {
-  val pieceType: PieceType = PieceType.King
+case object King extends Piece {
+  val symbol = "K"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean =
     Piece.isMoveInsideBoard(toPos)
@@ -117,4 +106,3 @@ class King extends Piece {
         .filter(Piece.isMoveInsideBoard)
         .map(toPos => Move(this, fromPos, toPos, captureAllowed = true))
 }
-
