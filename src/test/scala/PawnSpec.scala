@@ -77,6 +77,39 @@ class PawnSpec extends UnitTestSpec {
     }
   }
 
+  "Valid moves" should "contain 1 and 2 field moves forward and 1-field diagonal capture moves for first move" in {
+    for (fromPos <- Board.allPositionsForRow(1)) {
+      withClue(s"Checking fromPos: $fromPos") {
+
+        val regularMoves = Set(Move(Pawn, fromPos, fromPos.move(0, 1), captureAllowed = false),
+                               Move(Pawn, fromPos, fromPos.move(0, 2), captureAllowed = false))
+        val leftCaptureMove = if (fromPos.col > 0) Set(Move(Pawn, fromPos, fromPos.move(-1, 1), captureAllowed = true, onlyCapture = true))
+                              else Set()
+        val rightCaptureMove = if (fromPos.col < 7) Set(Move(Pawn, fromPos, fromPos.move(1, 1), captureAllowed = true, onlyCapture = true))
+                               else Set()
+
+        val captureMoves = leftCaptureMove ++ rightCaptureMove
+
+        Pawn.validMoves(fromPos, firstMove = true) should be (regularMoves ++ captureMoves)
+      }
+    }
+  }
+
+  it should "contain only 1 field move forward and 1-field diagonal capture moves for non-first move" in {
+    for (fromPos <- Board.allPositionsForRow(1)) {
+      withClue(s"Checking fromPos: $fromPos") {
+        val regularMoves = Set(Move(Pawn, fromPos, fromPos.move(0, 1), captureAllowed = false))
+        val leftCaptureMove = if (fromPos.col > 0) Set(Move(Pawn, fromPos, fromPos.move(-1, 1), captureAllowed = true, onlyCapture = true))
+                              else Set()
+        val rightCaptureMove = if (fromPos.col < 7) Set(Move(Pawn, fromPos, fromPos.move(1, 1), captureAllowed = true, onlyCapture = true))
+                               else Set()
+
+        val captureMoves = leftCaptureMove ++ rightCaptureMove
+
+        Pawn.validMoves(fromPos, firstMove = false) should be (regularMoves ++ captureMoves)
+      }
+    }
+  }
 
   private def assertValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Unit =
     assertValidMove(fromPos, toPos, firstMove, validState = true)

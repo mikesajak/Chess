@@ -15,7 +15,9 @@ trait Piece {
   override def toString: String = symbol
 }
 
-case class Move(piece: Piece, fromPos: Position, toPos: Position, captureAllowed: Boolean)
+case class Move(piece: Piece, fromPos: Position, toPos: Position, captureAllowed: Boolean, onlyCapture: Boolean = false) {
+  assert(!onlyCapture || captureAllowed)
+}
 
 case object Pawn extends Piece {
   import Piece.*
@@ -47,18 +49,18 @@ case object Pawn extends Piece {
     val regularTargetPos = Set(fromPos.move(0, 1))
     // TODO: maybe mark this move - to enable detecting of "en passant" capture
     val regularFirstMoveTargetPos = if (firstMove) Set(fromPos.move(0, 2)) else Set()
-    val captureTargetPositions = Set(fromPos.move(-1, 0),
-                                     fromPos.move(1, 0))
+    val captureTargetPositions = Set(fromPos.move(-1, 1),
+                                     fromPos.move(1, 1))
 
-    val regularMoves = (regularTargetPos ++ regularFirstMoveTargetPos)
+    val regularMoves = (regularTargetPos ++ regularFirstMoveTargetPos).view
         .filter(Piece.isMoveInsideBoard)
         .map(toPos => Move(this, fromPos, toPos, captureAllowed = false))
 
-    val captureMoves = captureTargetPositions
+    val captureMoves = captureTargetPositions.view
         .filter(Piece.isMoveInsideBoard)
-        .map(toPos => Move(this, fromPos, toPos, captureAllowed = true))
+        .map(toPos => Move(this, fromPos, toPos, captureAllowed = true, onlyCapture = true))
 
-    regularMoves ++ captureMoves
+    (regularMoves ++ captureMoves).toSet
   }
 
 }
