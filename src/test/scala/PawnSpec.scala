@@ -27,28 +27,28 @@ class PawnSpec extends UnitTestSpec {
 
   it should "not accept any move to outside board" in {
     for (fromPos <- allPositionsOnBoard) {
-      for (toCol <- 0 to 7) {
-        assertInvalidMove(fromPos, Position(toCol, -1), firstMove = false)
-        assertInvalidMove(fromPos, Position(toCol, -8), firstMove = false)
+      for (toCol <- 0 to 7;
+           toRow <- List(-1000, -100, -10, -2, -1, 8, 9, 20, 100, 1000)) {
+        assertInvalidMove(fromPos, Position(toCol, toRow), firstMove = false)
       }
 
-      for (toRow <- 0 to 7) {
-        assertInvalidMove(fromPos, Position(-1, toRow), firstMove = false)
-        assertInvalidMove(fromPos, Position(8, toRow), firstMove = false)
+      for (toRow <- 0 to 7;
+           toCol <- List(-1000, -100, -10, -2, -1, 8, 9, 20, 100, 1000)) {
+        assertInvalidMove(fromPos, Position(toCol, toRow), firstMove = false)
       }
     }
   }
 
   it should "not accept any move from outside board" in {
     for (toPos <- allPositionsOnBoard) {
-      for (fromCol <- 0 to 7) {
-        assertInvalidMove(Position(fromCol, -1), toPos, firstMove = false)
-        assertInvalidMove(Position(fromCol, 8),toPos,  firstMove = false)
+      for (fromCol <- 0 to 7;
+           fromRow <- List(-1000, -100, -10, -2, -1, 8, 9, 20, 100, 1000)) {
+        assertInvalidMove(Position(fromCol, fromRow), toPos, firstMove = false)
       }
 
-      for (toRow <- 0 to 7) {
-        assertInvalidMove(Position(-1, toRow), toPos, firstMove = false)
-        assertInvalidMove(Position(8, toRow), toPos, firstMove = false)
+      for (fromRow <- 0 to 7;
+           fromCol <- List(-1000, -100, -10, -2, -1, 8, 9, 20, 100, 1000)) {
+        assertInvalidMove(Position(fromCol, fromRow), toPos, firstMove = false)
       }
     }
   }
