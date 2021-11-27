@@ -22,7 +22,9 @@ object Board {
   }
 
   def allPositionsForRow(row: Int): Seq[Position] = Seq.tabulate(8)(col => Position(col, row))
+  def allPositionsForRows(rows: Int*): Seq[Position] = rows.flatMap(allPositionsForRow)
   def allPositionsForCol(col: Int): Seq[Position] = Seq.tabulate(8)(row => Position(col, row))
+  def allPositionsForCols(cols: Int*): Seq[Position] = cols.flatMap(allPositionsForCol)
 
   def allPositions: Seq[Position] =
     for (row <- 0 to 7; col <- 0 to 7) yield Position(col, row)
@@ -71,6 +73,9 @@ object Board {
 
   def posInsideBoard(pos: Position): Boolean =
     pos.col >= 0 && pos.col <= 7 && pos.row >= 0 && pos.row <= 7
+
+  def moveInsideBoard(move: Move): Boolean =
+    posInsideBoard(move.fromPos) && posInsideBoard(move.toPos)
 }
 
 case class Board(whitePieces: PlayerPieces, blackPieces: PlayerPieces, moves: Seq[Move]) {

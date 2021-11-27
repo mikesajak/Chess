@@ -1,9 +1,6 @@
 package com.mikesajak.chess
 
 object Piece {
-  def isMoveInsideBoard(toPos: Position): Boolean =
-    toPos.row >=0 && toPos.row < 8 && toPos.col >= 0 && toPos.col < 8
-
   def allPieceTypes: Seq[Piece] = Seq(Pawn, Rook, Knight, Bishop, Queen, Knight)
 }
 
@@ -13,10 +10,6 @@ trait Piece {
   def symbol: String
 
   override def toString: String = symbol
-}
-
-case class Move(piece: Piece, fromPos: Position, toPos: Position, captureAllowed: Boolean, onlyCapture: Boolean = false) {
-  assert(!onlyCapture || captureAllowed)
 }
 
 case object Pawn extends Piece {
@@ -29,7 +22,7 @@ case object Pawn extends Piece {
         || fromPos.row < 0 || fromPos.row > 7) false
     else if (firstMove && fromPos.row != 1) false
     else {
-      isMoveInsideBoard(toPos)
+      Board.posInsideBoard(toPos)
           && (isRegularMove(fromPos, toPos, firstMove)
           || isCaptureMove(fromPos, toPos))
     }
@@ -53,11 +46,11 @@ case object Pawn extends Piece {
                                      fromPos.move(1, 1))
 
     val regularMoves = (regularTargetPos ++ regularFirstMoveTargetPos).view
-        .filter(Piece.isMoveInsideBoard)
+        .filter(Board.posInsideBoard)
         .map(toPos => Move(this, fromPos, toPos, captureAllowed = false))
 
     val captureMoves = captureTargetPositions.view
-        .filter(Piece.isMoveInsideBoard)
+        .filter(Board.posInsideBoard)
         .map(toPos => Move(this, fromPos, toPos, captureAllowed = true, onlyCapture = true))
 
     (regularMoves ++ captureMoves).toSet
@@ -68,8 +61,23 @@ case object Pawn extends Piece {
 case object Knight extends Piece { // horse
   val symbol = "H"
 
-  override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = false
-  override def validMoves(fromPos: Position, firstMove: Boolean): Set[Move] = Set()
+  override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = {
+    fromPos != toPos && Board.posInsideBoard(fromPos) && Board.posInsideBoard(toPos) &&
+        (fromPos.rowDiff(toPos).abs == 2 && fromPos.colDiff(toPos).abs == 1 ||
+            fromPos.colDiff(toPos).abs == 2 && fromPos.rowDiff(toPos).abs == 1)
+  }
+  override def validMoves(fromPos: Position, firstMove: Boolean): Set[Move] = {
+    Set(fromPos.move(-1, 2),
+        fromPos.move(1, 2),
+        fromPos.move(-1, -2),
+        fromPos.move(1, -2),
+        fromPos.move(2, -1),
+        fromPos.move(2, 1),
+        fromPos.move(-2, -1),
+        fromPos.move(-2, 1))
+        .filter(Board.posInsideBoard)
+        .map(toPos => Move(this, fromPos, toPos, captureAllowed = true))
+  }
 }
 
 case object Bishop extends Piece { // Laufer
@@ -118,7 +126,7 @@ case object King extends Piece {
   val symbol = "K"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean =
-    Piece.isMoveInsideBoard(toPos)
+    Board.posInsideBoard(toPos)
         && fromPos != toPos
         && (math.abs(fromPos.colDiff(toPos)) <= 1 || math.abs(fromPos.rowDiff(toPos)) <= 1)
 
@@ -126,6 +134,6 @@ case object King extends Piece {
     Set(fromPos.move(-1, 1), fromPos.move(0, 1), fromPos.move(1, 1),
         fromPos.move(-1, 0), fromPos.move(1, 0),
         fromPos.move(-1, -1), fromPos.move(0, -1), fromPos.move(1, -1))
-        .filter(Piece.isMoveInsideBoard)
+        .filter(Board.posInsideBoard)
         .map(toPos => Move(this, fromPos, toPos, captureAllowed = true))
 }

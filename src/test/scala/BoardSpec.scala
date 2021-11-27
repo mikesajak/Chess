@@ -3,6 +3,71 @@ package com.mikesajak.chess
 import org.scalatest.prop.TableDrivenPropertyChecks.*
 
 class BoardSpec extends UnitTestSpec {
+
+  "allPositionsForRow" should "generate positions for specified row only" in {
+    for (row <- 0 to 7) {
+      val positions = Board.allPositionsForRow(row)
+
+      withClue(s"Checking row: $row") {
+        positions should be ((0 to 7).map(col => Position(col, row)))
+      }
+    }
+  }
+
+  "allPositionsForRows" should "generate positions for specified rows only" in {
+    val rowCombinations = List(List(0,1),
+                               List(0,2),
+                               List(0,3),
+                               List(0,4),
+                               List(0,5),
+                               List(0,6),
+                               List(0,7),
+                               List(0, 2, 4, 6),
+                               List(1, 3, 5, 7),
+                               List(0, 1, 2, 3, 4, 5, 6, 7))
+    for (rows <- rowCombinations) {
+      val positions = Board.allPositionsForRows(rows: _*)
+
+      withClue(s"Checking rows: $rows") {
+        val expectedPositions = (0 to 7).flatMap(col => rows.map(row => Position(col, row)))
+        positions.size should be (expectedPositions.size)
+        expectedPositions.foreach(expectedPos => positions should contain (expectedPos))
+      }
+    }
+  }
+
+  "allPositionsForCol" should "generate positions for specified col only" in {
+    for (col <- 0 to 7) {
+      val positions = Board.allPositionsForCol(col)
+
+      withClue(s"Checking col: $col") {
+        positions should be ((0 to 7).map(row => Position(col, row)))
+      }
+    }
+  }
+
+  "allPositionsForCols" should "generate positions for specified cols only" in {
+    val colCombinations = List(List(0,1),
+                               List(0,2),
+                               List(0,3),
+                               List(0,4),
+                               List(0,5),
+                               List(0,6),
+                               List(0,7),
+                               List(0, 2, 4, 6),
+                               List(1, 3, 5, 7),
+                               List(0, 1, 2, 3, 4, 5, 6, 7))
+    for (cols <- colCombinations) {
+      val positions = Board.allPositionsForCols(cols: _*)
+
+      withClue(s"Checking cols: $cols") {
+        val expectedPositions = (0 to 7).flatMap(row => cols.map(col => Position(col, row)))
+        positions.size should be (expectedPositions.size)
+        expectedPositions.foreach(expectedPos => positions should contain (expectedPos))
+      }
+    }
+  }
+
   "isValid" should "fail for empty board with 2 opposite pieces on the same position" in {
     val invalidCombinations = Seq((PiecePosition(Pawn, Position(1, 1)),
                                       PiecePosition(Pawn, Board.mapToSide(PlayerSide.Black, Position(1,1)))))
