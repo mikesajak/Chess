@@ -1,4 +1,6 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.board
+
+import com.mikesajak.chess.UnitTestSpec
 
 class PositionSpec extends UnitTestSpec {
   "Position constructor" should "set row and column" in {

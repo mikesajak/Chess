@@ -1,4 +1,7 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.piece
+
+import com.mikesajak.chess.UnitTestSpec
+import com.mikesajak.chess.board.{Board, Position}
 
 class KnightSpec extends UnitTestSpec {
   "A Knight move validation" should "accept L-jump moves" in {

@@ -1,4 +1,7 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.board
+
+import com.mikesajak.chess.UnitTestSpec
+import com.mikesajak.chess.piece.*
 
 class MoveSpec extends UnitTestSpec {
   "Move colDiff" should "be column difference between toPos and fromPos" in {

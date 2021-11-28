@@ -1,5 +1,8 @@
 package com.mikesajak.chess
 
+import com.mikesajak.chess.board.*
+import com.mikesajak.chess.piece.*
+
 class NewGameBoardSpec extends UnitTestSpec {
   "New board factory method" should "create board for new game" in {
     val board = Board.newGame()

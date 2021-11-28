@@ -1,4 +1,6 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.piece
+
+import com.mikesajak.chess.board.{Board, Move, Position}
 
 object Piece {
   def allPieceTypes: Seq[Piece] = Seq(Pawn, Rook, Knight, Bishop, Queen, Knight)
@@ -59,7 +61,7 @@ case object Pawn extends Piece {
 }
 
 case object Knight extends Piece { // horse
-  val symbol = "H"
+  val symbol = "N"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = {
     fromPos != toPos && Board.posInsideBoard(fromPos) && Board.posInsideBoard(toPos) &&

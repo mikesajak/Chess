@@ -1,5 +1,8 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.board
 
+import com.mikesajak.chess.UnitTestSpec
+import com.mikesajak.chess.board.*
+import com.mikesajak.chess.piece.{King, Pawn, Piece}
 import org.scalatest.prop.TableDrivenPropertyChecks.*
 
 class BoardSpec extends UnitTestSpec {

@@ -1,4 +1,4 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.board
 
 case class Position(col: Int, row: Int) {
   def move(horizontal: Int, vertical: Int): Position = Position(col + horizontal, row + vertical)
@@ -13,6 +13,6 @@ case class Position(col: Int, row: Int) {
 
   private def mapToLetter(idx: Int) = ('a' + idx).toChar
 
-  private def isInsideBoard = col >= 0 && col <= 7 && row >= 0 && col <= 7
+  private def isInsideBoard = col >= 0 && col <= 7 && row >= 0 && row <= 7
 
 }

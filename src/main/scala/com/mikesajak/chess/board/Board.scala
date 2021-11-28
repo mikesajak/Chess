@@ -1,6 +1,8 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.board
 
-import Board.{mapToSide, posInsideBoard}
+import com.mikesajak.chess.board.Board.{mapToSide, posInsideBoard}
+import com.mikesajak.chess.board.{Move, Position}
+import com.mikesajak.chess.piece.*
 
 enum PlayerSide(val symbol: String):
   case Black extends PlayerSide("b")

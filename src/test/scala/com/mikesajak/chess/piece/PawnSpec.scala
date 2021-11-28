@@ -1,4 +1,7 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.piece
+
+import com.mikesajak.chess.UnitTestSpec
+import com.mikesajak.chess.board.{Board, Move, Position}
 
 class PawnSpec extends UnitTestSpec {
   "A Pawn move validation" should "accept regular 1-field forward opening move" in {

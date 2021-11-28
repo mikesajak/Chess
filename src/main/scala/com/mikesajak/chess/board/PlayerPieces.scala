@@ -1,4 +1,7 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.board
+
+import com.mikesajak.chess.board.Position
+import com.mikesajak.chess.piece.Piece
 
 case class PlayerPieces(alivePieces: Set[PiecePosition]) {
   private val rowsMap =

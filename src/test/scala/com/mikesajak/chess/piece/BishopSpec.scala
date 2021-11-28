@@ -1,4 +1,7 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.piece
+
+import com.mikesajak.chess.UnitTestSpec
+import com.mikesajak.chess.board.{Board, Position}
 
 class BishopSpec extends UnitTestSpec {
   "A Bishop move validation" should "accept only diagonal moves" in {

@@ -1,14 +1,16 @@
-package com.mikesajak.chess
+package com.mikesajak.chess.piece
 
-class RookSpec extends UnitTestSpec {
-  "A Rook move validation" should "accept only horizontal and vertical moves" in {
+import com.mikesajak.chess.UnitTestSpec
+import com.mikesajak.chess.board.{Board, Position}
+
+class KingSpec extends UnitTestSpec {
+  "King move validation" should "accept only 1-field moves" in {
     for (fromPos <- Board.allPositions;
          toPos <- Board.allPositions;
          firstMove <- List(true, false)) {
       withClue(s"Checking fromPos: $fromPos, toPos: $toPos") {
-        val isHorizontalMove = toPos.colDiff(fromPos) != 0 && toPos.rowDiff(fromPos) == 0
-        val isVerticalMove = toPos.rowDiff(fromPos) != 0 && toPos.colDiff(fromPos) == 0
-        Rook.isValidMove(fromPos, toPos, firstMove) should be(fromPos != toPos && (isHorizontalMove || isVerticalMove))
+        val is1FieldMove = toPos.colDiff(fromPos).abs <= 1 && toPos.rowDiff(fromPos).abs <= 1
+        King.isValidMove(fromPos, toPos, firstMove) should be(fromPos != toPos && is1FieldMove)
       }
     }
   }
@@ -20,7 +22,7 @@ class RookSpec extends UnitTestSpec {
          toPos = Position(toCol, toRow);
          firstMove <- List(true, false)) {
       withClue(s"Checking fromPos: $fromPos, toPos: $toPos") {
-        Rook.isValidMove(fromPos, toPos, firstMove) should be(false)
+        King.isValidMove(fromPos, toPos, firstMove) should be(false)
       }
     }
   }
@@ -32,22 +34,20 @@ class RookSpec extends UnitTestSpec {
          fromPos = Position(fromCol, fromRow);
          firstMove <- List(true, false)) {
       withClue(s"Checking fromPos: $fromPos, toPos: $toPos") {
-        Rook.isValidMove(fromPos, toPos, firstMove) should be (false)
+        King.isValidMove(fromPos, toPos, firstMove) should be (false)
       }
     }
   }
 
-  "Rook valid moves" should "contain only horizontal or vertical moves" in {
+  "King valid moves" should "contain only 1-square moves in all directions" in {
     for (fromPos <- Board.allPositions;
          firstMove <- List(true, false);
-         move <- Rook.validMoves(fromPos, firstMove)) {
-      withClue(s"Checking $move:") {
-        move.piece should be (Rook)
-        move.fromPos should be (fromPos)
-
-        if (move.rowDiff == 0) move.colDiff should not be 0
-        else move.colDiff should be (0)
-
+         move <- King.validMoves(fromPos, firstMove)) {
+      withClue(s"Checking $move: ") {
+        move.piece should be (King)
+        move.toPos should not be move.fromPos
+        move.toPos.rowDiff(move.fromPos).abs should be <= 1
+        move.toPos.colDiff(move.fromPos).abs should be <= 1
         move.captureAllowed should be (true)
         move.onlyCapture should be (false)
       }
