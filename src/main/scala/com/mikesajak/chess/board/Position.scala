@@ -15,4 +15,9 @@ case class Position(col: Int, row: Int) {
 
   private def isInsideBoard = col >= 0 && col <= 7 && row >= 0 && row <= 7
 
+  def swapSide: Position = Position(7 - col, 7 - row)
+}
+
+object Position {
+  def swapSide(col: Int, row: Int): Position = Position(7 - col, 7 - row)
 }

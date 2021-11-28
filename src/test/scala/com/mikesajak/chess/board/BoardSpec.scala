@@ -72,32 +72,18 @@ class BoardSpec extends UnitTestSpec {
   }
 
   "isValid" should "fail for empty board with 2 opposite pieces on the same position" in {
-    val invalidCombinations = Seq((PiecePosition(Pawn, Position(1, 1)),
-                                      PiecePosition(Pawn, Board.mapToSide(PlayerSide.Black, Position(1,1)))))
-
-    for ((whitePiecePos, blackPiecePos) <- invalidCombinations) {
-      val whitePieces = PlayerPieces(Set(whitePiecePos))
-      val blackPieces = PlayerPieces(Set(blackPiecePos))
-      val board = new Board(whitePieces, blackPieces, Seq())
+      val board = new Board(PlayerState(Position(1, 1) -> Pawn),
+                            PlayerState(Position.swapSide(1, 1) -> Pawn),
+                            Seq())
 
       withClue(s"Checking board $board:") {
         board.isValid should be(false)
       }
-    }
-  }
-
-  it should "fail for empty board with 2 the same pieces on the same position" in {
-    val whitePieces = PlayerPieces(Set(PiecePosition(Pawn, Position(1, 1)),
-                                       PiecePosition(King, Position(1, 1))))
-    val blackPieces = PlayerPieces(Set(PiecePosition(Pawn, Position(1, 1))))
-    val board = new Board(whitePieces, blackPieces, Seq())
-
-    board.isValid should be (false)
   }
 
   it should "fail for single white piece outside board" in {
-    val whitePieces = PlayerPieces(Set(PiecePosition(Pawn, Position(-1, 1))))
-    val blackPieces = PlayerPieces(Set(PiecePosition(Pawn, Position(1, 1))))
+    val whitePieces = PlayerState(Position(-1, 1) -> Pawn)
+    val blackPieces = PlayerState(Position(1, 1) -> Pawn)
     val board = new Board(whitePieces, blackPieces, Seq())
 
     board.isValid should be (false)
@@ -132,19 +118,18 @@ class BoardSpec extends UnitTestSpec {
   it should "detect single piece on board and not any other field" in {
 
     for (piece <- Piece.allPieceTypes;
-         occupiedPos <- Board.allPositions;
-         piecePos = PiecePosition(piece, occupiedPos)) {
+         occupiedPos <- Board.allPositions) {
       for (row <- 0 to 7; col <- 0 to 7;
            checkPos = Position(col, row)) {
-        val board = new Board(PlayerPieces(Set(piecePos)), PlayerPieces(Set()), Seq())
+        val board = new Board(PlayerState(occupiedPos -> piece), PlayerState(), Seq())
         withClue(s"Occupied white $piece, position $occupiedPos, checking position: $checkPos") {
           board.isOccupied(checkPos) should be(occupiedPos == checkPos)
         }
       }
       for (row <- 0 to 7; col <- 0 to 7;
-           checkPos = Board.mapToSide(PlayerSide.Black, Position(col, row))) {
-        val occupiedBlackPos = Board.mapToSide(PlayerSide.Black, occupiedPos)
-        val board = new Board(PlayerPieces(Set()), PlayerPieces(Set(piecePos)), Seq())
+           checkPos = Position.swapSide(col, row)) {
+        val board = new Board(PlayerState(), PlayerState(occupiedPos -> piece), Seq())
+        val occupiedBlackPos = occupiedPos.swapSide
         withClue(s"Occupied black $piece, position $occupiedBlackPos, checking position: $checkPos") {
           board.isOccupied(checkPos) should be (occupiedBlackPos == checkPos)
         }

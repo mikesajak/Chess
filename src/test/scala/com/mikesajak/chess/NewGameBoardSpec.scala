@@ -37,62 +37,62 @@ class NewGameBoardSpec extends UnitTestSpec {
         }
   }
 
-  private def checkPawns(pieces: PlayerPieces): Unit = {
+  private def checkPawns(pieces: PlayerState): Unit = {
     val pawns = pieces.getPieces(Pawn)
     pawns.size should be (8)
 
-    pawns.foreach(piecePos => piecePos.position.row == 1)
-    pawns.map(piecePos => piecePos.position.col).toSeq.sorted should be (Seq(0, 1,2,3,4,5,6,7))
+    pawns.foreach(posPiece => posPiece._1.row == 1)
+    pawns.map(posPiece => posPiece._1.col).toSeq.sorted should be (Seq(0, 1, 2, 3, 4, 5, 6, 7))
   }
 
-  private def checkRooks(pieces: PlayerPieces, color: PlayerSide): Unit = {
+  private def checkRooks(pieces: PlayerState, color: PlayerSide): Unit = {
     val rooks = pieces.getPieces(Rook)
     rooks.size should be (2)
 
-    val (rook1, rook2) = getPiecePair(rooks)
+    val (rook1Pos, rook2Pos) = getPiecePair(rooks)
 
-    rook1.position should be (Position(0, 0))
-    rook2.position should be (Position(7, 0))
+    rook1Pos should be (Position(0, 0))
+    rook2Pos should be (Position(7, 0))
   }
 
-  private def checkKnights(pieces: PlayerPieces, color: PlayerSide): Unit = {
+  private def checkKnights(pieces: PlayerState, color: PlayerSide): Unit = {
     val knights = pieces.getPieces(Knight)
     knights.size should be (2)
 
-    val (knight1, knight2) = getPiecePair(knights)
+    val (knight1Pos, knight2Pos) = getPiecePair(knights)
 
-    knight1.position should be (Position(1, 0))
-    knight2.position should be (Position(6, 0))
+    knight1Pos should be (Position(1, 0))
+    knight2Pos should be (Position(6, 0))
   }
 
-  private def checkBishops(pieces: PlayerPieces, color: PlayerSide): Unit = {
+  private def checkBishops(pieces: PlayerState, color: PlayerSide): Unit = {
     val bishops = pieces.getPieces(Bishop)
     bishops.size should be (2)
 
-    val (bishop1, bishop2) = getPiecePair(bishops)
+    val (bishop1Pos, bishop2Pos) = getPiecePair(bishops)
 
-    bishop1.position should be (Position(2, 0))
-    bishop2.position should be (Position(5, 0))
+    bishop1Pos should be (Position(2, 0))
+    bishop2Pos should be (Position(5, 0))
   }
 
-  private def checkQueen(pieces: PlayerPieces, color: PlayerSide): Unit = {
-    val queens = pieces.getPieces(Queen)
-    queens.size should be (1)
+  private def checkQueen(pieces: PlayerState, color: PlayerSide): Unit = {
+    val queenPositions = pieces.getPieces(Queen).keys
+    queenPositions.size should be (1)
 
-    val queen = queens.head
-    queen.position should be (Position(3, 0))
+    val queen = queenPositions.head
+    queen should be (Position(3, 0))
   }
 
-  private def checkKing(playerPieces: PlayerPieces, color: PlayerSide): Unit = {
-    val kings = playerPieces.getPieces(King)
-    kings.size should be (1)
-    val king = kings.head
+  private def checkKing(playerPieces: PlayerState, color: PlayerSide): Unit = {
+    val kingPositions = playerPieces.getPieces(King).keys
+    kingPositions.size should be (1)
+    val king = kingPositions.head
 
-    king.position should be (Position(4, 0))
+    king should be (Position(4, 0))
   }
 
-  private def getPiecePair(pieces: Set[PiecePosition]): (PiecePosition, PiecePosition) = {
-    val sortedPieces = pieces.toSeq.sortBy(_.position.col)
-    (sortedPieces.head, sortedPieces(1))
+  private def getPiecePair(posPieceMap: Map[Position, Piece]): (Position, Position) = {
+    val sortedPieces = posPieceMap.toSeq.sortBy(posPiece => posPiece._1.col)
+    (sortedPieces.head._1, sortedPieces(1)._1)
   }
 }

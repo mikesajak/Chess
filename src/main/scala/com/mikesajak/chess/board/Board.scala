@@ -1,6 +1,6 @@
 package com.mikesajak.chess.board
 
-import com.mikesajak.chess.board.Board.{mapToSide, posInsideBoard}
+import com.mikesajak.chess.board.Board.posInsideBoard
 import com.mikesajak.chess.board.{Move, Position}
 import com.mikesajak.chess.piece.*
 
@@ -18,8 +18,8 @@ object Board {
   }
 
   def newGame(): Board = {
-    new Board(PlayerPieces(startWhitePiecesPositionMap.toSeq.map(p => PiecePosition(p._2, p._1)).toSet),
-              PlayerPieces(startWhitePiecesPositionMap.toSeq.map(p => PiecePosition(p._2, p._1)).toSet),
+    new Board(PlayerState(startWhitePiecesPositionMap),
+              PlayerState(startWhitePiecesPositionMap),
               Seq())
   }
 
@@ -30,11 +30,6 @@ object Board {
 
   def allPositions: Seq[Position] =
     for (row <- 0 to 7; col <- 0 to 7) yield Position(col, row)
-
-  def mapToSide(side: PlayerSide, pos: Position): Position = side match {
-    case PlayerSide.White => pos
-    case PlayerSide.Black => Position(7 - pos.col, 7 - pos.row)
-  }
 
   /*
     Black
@@ -66,7 +61,7 @@ object Board {
   }
 
   val startBlackPiecesPositionMap: Map[Position, Piece] =
-    startWhitePiecesPositionMap.map(p => Board.mapToSide(PlayerSide.Black, p._1) -> p._2)
+    startWhitePiecesPositionMap.map(p => p._1.swapSide -> p._2)
 
   val startPositionMap: Map[Position, (Piece, PlayerSide)] = {
     startWhitePiecesPositionMap.map(p => p._1 -> (p._2, PlayerSide.White)) ++
@@ -80,14 +75,14 @@ object Board {
     posInsideBoard(move.fromPos) && posInsideBoard(move.toPos)
 }
 
-case class Board(whitePieces: PlayerPieces, blackPieces: PlayerPieces, moves: Seq[Move]) {
+case class Board(whitePieces: PlayerState, blackPieces: PlayerState, moves: Seq[Move]) {
   def isValid: Boolean = {
     val allPieces = whitePieces.alivePieces.toSeq ++
-        blackPieces.alivePieces.toSeq.map(pp => PiecePosition(pp.piece, Board.mapToSide(PlayerSide.Black, pp.position)))
+        blackPieces.alivePieces.toSeq.map(posPiece => posPiece._1.swapSide -> posPiece._2)
 
-    if (allPieces.exists(pp => !posInsideBoard(pp.position))) false
+    if (allPieces.exists(posPiece => !posInsideBoard(posPiece._1))) false
     else {
-      val grouped = allPieces.groupBy(pp => pp.position)
+      val grouped = allPieces.groupBy(posPiece => posPiece._1)
       !grouped.exists((_, set) => set.size > 1)
     }
   }
@@ -123,11 +118,11 @@ case class Board(whitePieces: PlayerPieces, blackPieces: PlayerPieces, moves: Se
   }
 
   def getWhitePiece(pos: Position): Option[Piece] = {
-    whitePieces.pieceOnPos(mapToSide(PlayerSide.White, pos))
+    whitePieces.pieceOnPos(pos)
   }
 
   def getBlackPiece(pos: Position): Option[Piece] = {
-    blackPieces.pieceOnPos(mapToSide(PlayerSide.Black, pos))
+    blackPieces.pieceOnPos(pos.swapSide)
   }
 
   def printBoard: String = {
