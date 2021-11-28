@@ -46,16 +46,18 @@ class BishopSpec extends UnitTestSpec {
     }
   }
 
-  "Valid moves" should "contain only forward diagonal moves" in {
+  "Valid moves" should "contain only diagonal moves" in {
     for (fromPos <- Board.allPositions;
-         firstMove <- List(true, false)) {
-      withClue(s"Checking fromPos=$fromPos: ") {
-        val expectedMoves = (1 to 7).flatMap(ofs => Set(fromPos.move(ofs, ofs)) ++ Set(fromPos.move(-ofs, ofs)) ++
-                                                    Set(fromPos.move(ofs, -ofs)) ++ Set(fromPos.move(-ofs, -ofs)))
-                                    .filter(Board.posInsideBoard)
-                                    .map(toPos => Move(Bishop, fromPos, toPos, captureAllowed = true))
-                                    .toSet
-        Bishop.validMoves(fromPos, firstMove) should be (expectedMoves)
+         firstMove <- List(true, false);
+         move <- Bishop.validMoves(fromPos, firstMove)) {
+      withClue(s"Checking $move: ") {
+        move.piece should be(Bishop)
+        move.fromPos should not be move.toPos
+
+        move.colDiff.abs should be (move.rowDiff.abs)
+
+        move.captureAllowed should be (true)
+        move.onlyCapture should be (false)
       }
     }
   }

@@ -1,7 +1,7 @@
 package com.mikesajak.chess
 
 class KnightSpec extends UnitTestSpec {
-  "A Knight move validation" should "accept valid knight jump moves" in {
+  "A Knight move validation" should "accept L-jump moves" in {
     for (fromPos <- Board.allPositions;
          toPos <- Board.allPositions;
          firstMove <- List(true, false)) {
@@ -14,12 +14,9 @@ class KnightSpec extends UnitTestSpec {
   }
 
   it should "not accept any move outside board" in {
-    for (fromPos <- Board.allPositionsForRow(0) ++ Board.allPositionsForRow(1) ++
-        Board.allPositionsForRow(6) ++ Board.allPositionsForRow(7) ++
-        Board.allPositionsForCol(0) ++ Board.allPositionsForCol(1) ++
-        Board.allPositionsForCol(6) ++ Board.allPositionsForCol(7);
-         toPos <- knightMovesFrom(fromPos)
-         if !Board.posInsideBoard(toPos);
+    for (fromPos <- Board.allPositionsForRows(0, 1, 6, 7) ++ Board.allPositionsForCols(0, 1, 6, 7);
+         toPos <- Board.allPositionsForRows(-1000, -100, -10, -1, -2, 8, 9, 20, 100, 1000)
+             ++ Board.allPositionsForCols(-1000, -100, -10, -1, -2, 8, 9, 20, 100, 1000);
          firstMove <- List(true, false)) {
       withClue(s"Checking fromPos: $fromPos, toPos: $toPos") {
         Knight.isValidMove(fromPos, toPos, firstMove) should be(false)
@@ -39,27 +36,26 @@ class KnightSpec extends UnitTestSpec {
     }
   }
 
-  "Knight valid moves" should "contain only horizontal or vertical moves" in {
-    for (fromPos <- Board.allPositions;
-         firstMove <- List(true, false)) {
-      withClue(s"Checking fromPos=$fromPos: ") {
-        val expectedMoves = knightMovesFrom(fromPos)
-            .filter(Board.posInsideBoard)
-            .map(toPos => Move(Knight, fromPos, toPos, captureAllowed = true))
+  "Knight valid moves" should "contain only L-shape capture moves" in {
+     for (fromPos <- Board.allPositions;
+          firstMove <- List(true, false);
+          move <- Knight.validMoves(fromPos, firstMove)) {
+       withClue(s"Checking $move:") {
+         move.piece should be (Knight)
+         move.fromPos should not be move.toPos
 
-        Knight.validMoves(fromPos, firstMove) should be (expectedMoves)
-      }
-    }
+         val colDiff = move.colDiff.abs
+         val rowDiff = move.rowDiff.abs
+
+         colDiff should be <= 2
+         rowDiff should be <= 2
+
+         if (colDiff == 2) rowDiff should be (1)
+         else rowDiff should be (2)
+
+         move.captureAllowed should be (true)
+         move.onlyCapture should be (false)
+       }
+     }
   }
-
-  private def knightMovesFrom(fromPos: Position) =
-    Set(fromPos.move(-1, -2),
-        fromPos.move(-1, 2),
-        fromPos.move(1, -2),
-        fromPos.move(1, 2),
-        fromPos.move(-2, -1),
-        fromPos.move(-2, 1),
-        fromPos.move(2, -1),
-        fromPos.move(2, 1))
-
 }

@@ -61,7 +61,6 @@ class PawnSpec extends UnitTestSpec {
   }
 
   it should "accept all 1-field capture (diagonal) moves" in {
-//    val pawn = new Pawn
     for (fromCol <- 0 to 7;
          fromRow <- 0 to 6;
          fromPos = Position(fromCol, fromRow)) {
