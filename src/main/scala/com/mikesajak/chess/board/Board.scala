@@ -1,7 +1,5 @@
 package com.mikesajak.chess.board
 
-import com.mikesajak.chess.board.Board.posInsideBoard
-import com.mikesajak.chess.board.{Move, Position}
 import com.mikesajak.chess.piece.*
 
 enum PlayerSide(val symbol: String):
@@ -68,11 +66,8 @@ object Board {
         startBlackPiecesPositionMap.map(p => p._1 -> (p._2, PlayerSide.Black))
   }
 
-  def posInsideBoard(pos: Position): Boolean =
-    pos.col >= 0 && pos.col <= 7 && pos.row >= 0 && pos.row <= 7
-
-  def moveInsideBoard(move: Move): Boolean =
-    posInsideBoard(move.fromPos) && posInsideBoard(move.toPos)
+  val InnerRowSep: String = (0 to 7).map(_ => "----").mkString("|", "+", "|\n")
+  val EdgeRowSep: String = (0 to 7).map(_ => "----").mkString("+", "+", "+\n")
 }
 
 case class Board(whitePieces: PlayerState, blackPieces: PlayerState, moves: Seq[Move]) {
@@ -80,7 +75,7 @@ case class Board(whitePieces: PlayerState, blackPieces: PlayerState, moves: Seq[
     val allPieces = whitePieces.alivePieces.toSeq ++
         blackPieces.alivePieces.toSeq.map(posPiece => posPiece._1.swapSide -> posPiece._2)
 
-    if (allPieces.exists(posPiece => !posInsideBoard(posPiece._1))) false
+    if (allPieces.exists(posPiece => !posPiece._1.isInsideBoard)) false
     else {
       val grouped = allPieces.groupBy(posPiece => posPiece._1)
       !grouped.exists((_, set) => set.size > 1)
@@ -111,19 +106,13 @@ case class Board(whitePieces: PlayerState, blackPieces: PlayerState, moves: Seq[
 
   def getPiece(row: Int, col: Int): Option[(Piece, PlayerSide)] = getPiece(Position(col, row))
   def getPiece(pos: Position): Option[(Piece, PlayerSide)] = {
-    val whitePiece = getWhitePiece(pos)
-    val blackPiece = getBlackPiece(pos)
-    whitePiece.map(piece => (piece, PlayerSide.White))
-        .orElse(blackPiece.map(piece => (piece, PlayerSide.Black)))
+    getWhitePiece(pos).map(piece => (piece, PlayerSide.White))
+        .orElse(getBlackPiece(pos).map(piece => (piece, PlayerSide.Black)))
   }
 
-  def getWhitePiece(pos: Position): Option[Piece] = {
-    whitePieces.pieceOnPos(pos)
-  }
+  def getWhitePiece(pos: Position): Option[Piece] = whitePieces.pieceOnPos(pos)
 
-  def getBlackPiece(pos: Position): Option[Piece] = {
-    blackPieces.pieceOnPos(pos.swapSide)
-  }
+  def getBlackPiece(pos: Position): Option[Piece] = blackPieces.pieceOnPos(pos.swapSide)
 
   def printBoard: String = {
     val boardRowStrings = for (rowIdx <- 7 to 0 by -1) yield {
@@ -131,12 +120,8 @@ case class Board(whitePieces: PlayerState, blackPieces: PlayerState, moves: Seq[
               .mkString("|", "|", "|\n")
     }
 
-    boardRowStrings.mkString(EdgeRowSep, InnerRowSep, EdgeRowSep)
+    boardRowStrings.mkString(Board.EdgeRowSep, Board.InnerRowSep, Board.EdgeRowSep)
   }
-
-  private val InnerRowSep  = (0 to 7).map(_ => "----").mkString("|", "+", "|\n")
-  private val EdgeRowSep = (0 to 7).map(_ => "----").mkString("+", "+", "+\n")
-
 
   private def fieldSymbol(row: Int, col: Int, board: Board) = {
     board.getPiece(row, col)

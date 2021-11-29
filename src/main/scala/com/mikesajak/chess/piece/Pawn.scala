@@ -9,15 +9,13 @@ case object Pawn extends Piece {
   val symbol = "P"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = {
-    if (fromPos.col < 0 || fromPos.col > 7
-        || fromPos.row < 0 || fromPos.row > 7) false
-    else if (firstMove && fromPos.row != 1) false
-         else {
-           Board.posInsideBoard(toPos)
-               && (isRegularMove(fromPos, toPos, firstMove)
-               || isCaptureMove(fromPos, toPos))
-         }
+    fromPos != toPos && fromPos.isInsideBoard && toPos.isInsideBoard &&
+        validFromPos(fromPos, firstMove) &&
+        (isRegularMove(fromPos, toPos, firstMove) || isCaptureMove(fromPos, toPos))
   }
+
+  private def validFromPos(fromPos: Position, firstMove: Boolean) =
+    !firstMove || firstMove && fromPos.row == 1
 
   private def isRegularMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = {
     val allowedForwardMove = if (firstMove) 2 else 1
@@ -36,20 +34,15 @@ case object Pawn extends Piece {
     val captureTargetPositions = Set(fromPos.move(-1, 1),
                                      fromPos.move(1, 1))
 
-    val regularMoves = (regularTargetPos ++ regularFirstMoveTargetPos).view
-                                                                      .filter(Board.posInsideBoard)
-                                                                      .map(toPos => Move(this,
-                                                                                         fromPos,
-                                                                                         toPos,
-                                                                                         captureAllowed = false))
+    val regularMoves = (regularTargetPos ++ regularFirstMoveTargetPos)
+        .view
+        .filter(_.isInsideBoard)
+        .map(toPos => Move(this, fromPos, toPos, captureAllowed = false))
 
-    val captureMoves = captureTargetPositions.view
-                                             .filter(Board.posInsideBoard)
-                                             .map(toPos => Move(this,
-                                                                fromPos,
-                                                                toPos,
-                                                                captureAllowed = true,
-                                                                onlyCapture = true))
+    val captureMoves = captureTargetPositions
+        .view
+        .filter(_.isInsideBoard)
+        .map(toPos => Move(this, fromPos, toPos, captureAllowed = true, onlyCapture = true))
 
     (regularMoves ++ captureMoves).toSet
   }

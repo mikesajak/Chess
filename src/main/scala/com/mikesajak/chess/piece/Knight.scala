@@ -6,7 +6,7 @@ case object Knight extends Piece {
   val symbol = "N"
 
   override def isValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Boolean = {
-    fromPos != toPos && Board.posInsideBoard(fromPos) && Board.posInsideBoard(toPos) &&
+    fromPos != toPos && fromPos.isInsideBoard && toPos.isInsideBoard &&
         (fromPos.rowDiff(toPos).abs == 2 && fromPos.colDiff(toPos).abs == 1 ||
             fromPos.colDiff(toPos).abs == 2 && fromPos.rowDiff(toPos).abs == 1)
   }
@@ -20,7 +20,7 @@ case object Knight extends Piece {
         fromPos.move(2, 1),
         fromPos.move(-2, -1),
         fromPos.move(-2, 1))
-        .filter(Board.posInsideBoard)
+        .filter(_.isInsideBoard)
         .map(toPos => Move(this, fromPos, toPos, captureAllowed = true))
   }
 }
