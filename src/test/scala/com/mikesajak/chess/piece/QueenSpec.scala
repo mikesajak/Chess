@@ -9,7 +9,7 @@ class QueenSpec extends UnitTestSpec {
          toOfs <- -7 to 7;
          toPos = fromPos.move(toOfs, toOfs)
          if fromPos != toPos
-         if Board.posInsideBoard(toPos);
+         if toPos.isInsideBoard;
          firstMove <- List(true, false)) {
       withClue(s"Checking $fromPos -> $toPos: ") {
         Queen.isValidMove(fromPos, toPos, firstMove) should be (true)
@@ -22,7 +22,7 @@ class QueenSpec extends UnitTestSpec {
          toOfs <- -7 to 7;
          toPos = fromPos.move(toOfs, 0)
          if fromPos != toPos
-         if Board.posInsideBoard(toPos);
+         if toPos.isInsideBoard;
          firstMove <- List(true, false)) {
       withClue(s"Checking $fromPos -> $toPos: ") {
         Queen.isValidMove(fromPos, toPos, firstMove) should be (true)
@@ -35,7 +35,7 @@ class QueenSpec extends UnitTestSpec {
          toOfs <- -7 to 7;
          toPos = fromPos.move(0, toOfs)
          if fromPos != toPos
-         if Board.posInsideBoard(toPos);
+         if toPos.isInsideBoard;
          firstMove <- List(true, false)) {
       withClue(s"Checking $fromPos -> $toPos: ") {
         Queen.isValidMove(fromPos, toPos, firstMove) should be (true)
@@ -99,19 +99,40 @@ class QueenSpec extends UnitTestSpec {
     }
   }
 
-  it should "contain only horizontal or vertical moves" in {
+  it should "contain only horizontal or vertical moves or diagonal" in {
     for (fromPos <- Board.allPositions;
          firstMove <- List(true, false);
          move <- Queen.validMoves(fromPos, firstMove)) {
       withClue(s"Checking $move: ") {
-        move.piece should be (Rook)
+        move.piece should be (Queen)
         move.fromPos should be (fromPos)
+        move.toPos should not be fromPos
 
-        if (move.rowDiff == 0) move.colDiff should not be 0
-        else move.colDiff should be (0)
+        val isVertical = move.rowDiff == 0
+        val isHorizontal = move.colDiff == 0
+        val isDiagonal = move.colDiff.abs == move.rowDiff.abs
+        val validMove = isVertical || isHorizontal || isDiagonal
+        validMove should be (true)
 
         move.captureAllowed should be (true)
         move.onlyCapture should be (false)
+      }
+    }
+  }
+
+  it should "contain not contain moves outside board" in {
+    for (fromPos <- Board.allPositions;
+         firstMove <- List(true, false);
+         move <- Queen.validMoves(fromPos, firstMove)) {
+      withClue(s"Checking $move: ") {
+        move.piece should be (Queen)
+        move.fromPos should be (fromPos)
+        move.toPos should not be fromPos
+
+        val isInsideBoard = move.toPos.col >= 0 && move.toPos.col <= 7
+            && move.toPos.row >= 0 && move.toPos.row <= 7
+
+        isInsideBoard should be (true)
       }
     }
   }
