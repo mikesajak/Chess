@@ -113,23 +113,6 @@ class PawnSpec extends UnitTestSpec {
     }
   }
 
-  it should "contain not contain moves outside board" in {
-    for (fromPos <- Board.allPositions;
-         firstMove <- List(true, false);
-         move <- Pawn.validMoves(fromPos, firstMove)) {
-      withClue(s"Checking $move: ") {
-        move.piece should be (Pawn)
-        move.fromPos should be (fromPos)
-        move.toPos should not be fromPos
-
-        val isInsideBoard = move.toPos.col >= 0 && move.toPos.col <= 7
-            && move.toPos.row >= 0 && move.toPos.row <= 7
-
-        isInsideBoard should be (true)
-      }
-    }
-  }
-
   private def assertValidMove(fromPos: Position, toPos: Position, firstMove: Boolean): Unit =
     assertValidMove(fromPos, toPos, firstMove, validState = true)
 
